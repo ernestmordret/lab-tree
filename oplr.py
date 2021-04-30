@@ -5,8 +5,10 @@ from tkinter import font
 from tkinter import *
 import webbrowser
 import csv
+import operator
 
 mydict={}
+orderedpubs=[]
 currentpub=0
 filename=""
 buttonpress=0
@@ -42,14 +44,30 @@ def openpickle():
         else:
             repairpickle()
             # we display a new pub
+            ordering()
             nextpub()
             # we display the labels
             definelabels()
             # we add buttons to deal with the pubs
             delbuttoncreate()
             nextbuttoncreate()
-            
+            orderingcreate()
 
+# this function create the ordering menu
+def orderingcreate():
+    
+    btn_c3 = tk.Radiobutton(master=frm_menu, text='Cited',variable=order, value=3, command=ordering)
+    btn_c3.pack(side=tk.RIGHT)
+    btn_c2 = tk.Radiobutton(master=frm_menu, text='Year',variable=order, value=2, command=ordering)
+    btn_c2.pack(side=tk.RIGHT)
+    btn_c1 = tk.Radiobutton(master=frm_menu, text='ID',variable=order, value=1, command=ordering)
+    btn_c1.pack(side=tk.RIGHT)
+
+    btn_c1.select()
+
+    lbl_ordering = tk.Label(master=frm_menu,text="Order by: ")
+    lbl_ordering.pack(side=tk.RIGHT)
+    
 # this function create a new button "next pub" when a pickle file is opened
 def nextbuttoncreate():
     global buttonpress
@@ -119,7 +137,7 @@ def nextpub():
     global mydict
     global currentpub
     # For every publication, we check :
-    for pub in mydict['pubs']:
+    for pub in orderedpubs:
         # if the publication has never been labelled, we display it and we stop there
         if mydict["labels"][pub]["labelled"] == False:
             currentpub=pub
@@ -287,8 +305,60 @@ def csvexport():
                         
                 writer.writerow(pubdict)
 
+# creates the ordered list of publications depending on ID, year, or citations
+def ordering():
+    global mydict
+    global orderedpubs
+    if order.get() == 1: #id
+        # first we create a list
+        ordered = []
+        for i in mydict["pubs"]:
+            # we convert the key into an integer
+            j = -1
+            try:
+                j = int(i)
+            except ValueError:
+                pass
+            # if that worked, we add that integer to the list
+            if j != -1:
+                ordered.append(j)
+        # we now have a list of IDs, we sort it
+        sorted(ordered)
+        orderedpubs=ordered
+        
+    if order.get() == 2: #year
+        # first we create a dictionary with the IDs as key and the year as value
+        newdict = {}
+        for i in mydict["pubs"]:
+            newdict[i] = mydict["pubs"][i]["bib"]["pub_year"]
+        # then we sort it, which will give us a list of tuples
+        sorted_dict = sorted(newdict.items(), key=operator.itemgetter(1))
+        # we convert that list of tupples into a list of ids
+        ordered = []
+        for i in sorted_dict:
+            ordered.append(i[0])
+        orderedpubs=ordered
+        
+    if order.get() == 3: #cited
+        # first we create a dictionary with the IDs as key and the citations as value
+        newdict = {}
+        for i in mydict["pubs"]:
+            newdict[i] = mydict["pubs"][i]['num_citations']
+        # then we sort it by desceding order, which will give us a list of tuples
+        sorted_dict = sorted(newdict.items(), key=operator.itemgetter(1), reverse = True)
+        # we convert that list of tupples into a list of ids
+        ordered = []
+        for i in sorted_dict:
+            ordered.append(i[0])
+        orderedpubs=ordered
+    nextpub()
+    
 #creation of the Tk window
 window = tk.Tk()
+
+# ordering checkbox
+order=IntVar(master=window)
+order.set(1)
 
 # menu frame
 frm_menu = tk.Frame(master=window, width=200)#, bg="red")
