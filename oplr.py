@@ -3,6 +3,7 @@ import pickle
 from tkinter import filedialog
 from tkinter import font
 import webbrowser
+import csv
 
 mydict={}
 currentpub=0
@@ -37,6 +38,7 @@ def openpickle():
         if "labels" not in mydict:
             print("error: this pickle file doesn't have labels in structure")
         else:
+            repairpickle()
             # we display a new pub
             nextpub()
             # we display the labels
@@ -68,12 +70,6 @@ def nextpub():
     global currentpub
     # For every publication, we check :
     for pub in mydict['pubs']:
-        # if no labels exist for this pub, we create the pub in labels
-        if pub not in mydict["labels"]:
-            mydict["labels"][pub] = {"labelled":False}
-        # if the whole labels category doesn't have a list we create it
-        if "list" not in mydict["labels"]:
-            mydict["labels"]["list"] = {}
         # if the publication has never been labelled, we display it and we stop there
         if mydict["labels"][pub]["labelled"] == False:
             currentpub=pub
@@ -108,6 +104,31 @@ def addlabel(id):
     updatelabels()
     savepickle()
 
+# this function checks that main fields exist and create them if they dont
+def repairpickle():
+    global mydict
+    
+    if "labels" not in mydict:
+        mydict = {"pubs":mydict,"labels":{"list":{}}}
+        
+    for pub in mydict['pubs']:
+        # if no labels exist for this pub, we create the pub in labels
+        if pub not in mydict["labels"]:
+            mydict["labels"][pub] = {"labelled":False}
+        # if the pub is missing a field, we create it
+        if "title" not in mydict["pubs"][pub]['bib']:
+            mydict["pubs"][pub]['bib']['title'] = "<NO TITLE>"
+        if "pub_year" not in mydict["pubs"][pub]['bib']:
+            mydict["pubs"][pub]['bib']['pub_year'] = "<NO YEAR>"
+        if "author" not in mydict["pubs"][pub]['bib']:
+            mydict["pubs"][pub]['bib']['author'] = "<NO AUTHOR>"
+        if "abstract" not in mydict["pubs"][pub]['bib']:
+            mydict["pubs"][pub]['bib']['abstract'] = "<NO ABSTRACT>"
+        if "pub_url" not in mydict["pubs"][pub]:
+            mydict["pubs"][pub]['pub_url'] = "<NO URL>"
+            
+    savepickle()
+    
 # this function save the pickle 
 def savepickle():
     global mydict
@@ -141,6 +162,45 @@ def definelabels():
                                  command=lambda label=label: addlabel(label))
             newbutton.pack(side=tk.TOP, padx=3, pady=3)
 
+# this function exports the pickled dictionary as a CSV
+def csvexport():
+    global mydict
+    directory = filedialog.asksaveasfilename(defaultextension='.csv',
+                                             filetypes=[("csv files", '*.csv')],
+                                             title="Choose filename")
+
+    if directory != "":
+        with open(directory, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['','title','year','authors','abstract']
+            for label in mydict['labels']['list']:
+                fieldnames.append(label)
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for pub in mydict['pubs']:
+                authors = ""
+                for author in mydict["pubs"][pub]['bib']['author']:
+                    if authors == "" or authors == " ":
+                        authors=author
+                    else:
+                        authors=authors+" and "+author
+                        
+                pubdict = {'':pub,
+                           'title':mydict["pubs"][pub]['bib']['title'],
+                           'year':mydict["pubs"][pub]['bib']['pub_year'],
+                           'authors':authors,
+                           'abstract':mydict["pubs"][pub]['bib']['abstract']}
+                
+                for ilabel in mydict['labels']['list']:
+                    if pub not in mydict["labels"]:
+                        pubdict[ilabel]=""
+                    elif ilabel in mydict["labels"][pub]:
+                        pubdict[ilabel]=1
+                    else:
+                        pubdict[ilabel]=""
+                        
+                writer.writerow(pubdict)
+
 #creation of the Tk window
 window = tk.Tk()
 
@@ -150,7 +210,11 @@ frm_menu.pack(fill=tk.X, side=tk.TOP, padx=20, pady=20)
 
 # "open pickle" button of the menu frame
 btn_open = tk.Button(master=frm_menu, text="Open Pickle", width=11, height=1, command=openpickle)
-btn_open.pack(side=tk.LEFT)
+btn_open.pack(side=tk.LEFT, padx=10)
+
+# "export as csv" button of the menu frame
+btn_exportcsv = tk.Button(master=frm_menu, text="Export as CSV", width=13, height=1, command=csvexport)
+btn_exportcsv.pack(side=tk.LEFT, padx=10)
 
 # publication frame with the abstract etc.
 frm_abstract = tk.Frame(master=window, width=800, height=800)#, bg="yellow")

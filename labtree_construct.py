@@ -25,7 +25,9 @@ for pub in masterdict["pubs"]:
 
 # we display the list of authors to check if it's right
 for pub in selected:
-    print(selected[pub]['bib']['author'])   
+    print(selected[pub]['bib']['author'])
+    if "abstract" not in selected[pub]['bib']:
+        print(selected[pub]['bib'])
 print(n)
 
 ################### THIS SECTION RARELY WORK
