@@ -75,6 +75,14 @@ def nextpub():
             currentpub=pub
             lbl_abstract["text"] = mydict["pubs"][pub]['bib']['abstract']
             lbl_title["text"] = mydict["pubs"][pub]['bib']['title']
+            subtitle = ""
+            for a in mydict["pubs"][pub]['bib']['author']:
+                if subtitle == "":
+                    subtitle = a
+                else:
+                    subtitle = subtitle + ", " + a
+            subtitle = subtitle + " (" + mydict["pubs"][pub]['bib']['pub_year'] + ")"
+            lbl_subtitle["text"] = subtitle
             lbl_link["text"] = mydict["pubs"][pub]['pub_url']
             # we bind a new callback for the url link of the pub
             lbl_link.bind("<Button-1>", lambda e: callback(mydict["pubs"][pub]['pub_url']))
@@ -225,6 +233,11 @@ frm_abstract.pack_propagate(0) #this is to avoid being resized by content
 font1 = font.Font(window, ('Arial', 12, 'bold'))
 lbl_title = tk.Message(master=frm_abstract, text="Instructions", width=800, font=font1, bg="#DDDDDD")
 lbl_title.pack(side=tk.TOP, fill = tk.BOTH)
+
+# this is the list of authors and the year of the publications
+font2 = font.Font(window, ('Arial', 10, 'italic'))
+lbl_subtitle = tk.Message(master=frm_abstract, text="", width=800, font=font2, bg="#DDDDDD")
+lbl_subtitle.pack(side=tk.TOP, fill = tk.BOTH)
 
 # this is the text of the abstract (default: explanations about the software)
 lbl_abstract = tk.Message(master=frm_abstract, text="Click 'Open Pickle' to open the dictionary created by the labtree_construct script. You can then add new labels or existing ones dynamically for each publications. Your work is saved WHEN YOU ADD A LABEL. So if you click 'next pub' by mistake, just close the program and start it again. Written by Clara Lehenaff for research purpose, feel free to modify whatever needed. Any question ? clara.lehenaff@cri-paris.org", width=800, bg="#DDDDDD")
