@@ -467,7 +467,7 @@ lbl_separat = tk.Label(master=frm_labels,text="---")
 lbl_separat.pack(side=tk.TOP, fill = tk.BOTH, padx=10, pady=10)
 
 # title of the software
-window.title("Open Paper Labelling for Research (OPLR 1.0)")
+window.title("Open Paper Labelling for Research (OPLR 1.1)")
 
 # main loop
 window.mainloop()
