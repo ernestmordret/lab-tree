@@ -147,18 +147,43 @@ def callback(url):
 def updatelabels():
     global mydict
     global currentpub
-    text=""
+    
+    # we remove the labels
+    for child in frm_currentlabels2.winfo_children():
+        child.destroy()
+        
+    font3 = font.Font(window, ('Arial', 10, 'bold'))
+    
+    mylabels={}
+    mylabelsdel={}
+    mylabelsend={}
     for label in mydict['labels'][currentpub]:
         if label != "labelled":
-            text = text+" ["+str(label)+"]"
-    lbl_currentlabels["text"] = text
+            text = "["+label
+            mylabels[label] = tk.Label(master=frm_currentlabels2,text=text,font=font3, bg="#DDDDDD")
+            mylabels[label].pack(side=tk.LEFT, fill = tk.BOTH)
+            mylabelsdel[label] = tk.Label(master=frm_currentlabels2,text="x",font=font3, fg="red", bg="#DDDDDD")
+            mylabelsdel[label].pack(side=tk.LEFT, fill = tk.BOTH)
+            mylabelsend[label] = tk.Label(master=frm_currentlabels2,text="]  ",font=font3, bg="#DDDDDD")
+            mylabelsend[label].pack(side=tk.LEFT, fill = tk.BOTH)
+            mylabelsdel[label].bind("<Button-1>", lambda event,name=label: removelabel(event,name))
+
+# this function removes a label "label" from the current publication "currentpub"
+# it also saves !
+def removelabel(event,num):
+    global mydict
+    global currentpub
+    mydict['labels'][currentpub].pop(num, None)
+    updatelabels()
+    savepickle()   
+
 
 # this function add a label "id" to the current publication "currentpub"
 # it also saves !
-def addlabel(id):
+def addlabel(num):
     global mydict
     global currentpub
-    mydict['labels'][currentpub][id] = 1
+    mydict['labels'][currentpub][num] = 1
     updatelabels()
     savepickle()
 
@@ -297,9 +322,12 @@ lbl_abstract.pack(side=tk.TOP, fill = tk.BOTH)
 lbl_link = tk.Message(master=frm_abstract, text="", width=800, bg="#DDDDDD", fg='blue')
 lbl_link.pack(side=tk.TOP, fill = tk.BOTH)
 
-# this is the list of the labels associated with the publication
-lbl_currentlabels = tk.Message(master=frm_abstract, text="", width=800, bg="#DDDDDD")
-lbl_currentlabels.pack(side=tk.TOP, fill = tk.BOTH)
+# this is the frame in which we put the labels associated with the publication
+frm_currentlabels = tk.Frame(master=frm_abstract, width=800, bg="#DDDDDD")
+frm_currentlabels.pack(side=tk.TOP, fill = tk.BOTH)
+# this is a frame in the frame for beauty purpose
+frm_currentlabels2 = tk.Frame(master=frm_currentlabels, bg="#DDDDDD")
+frm_currentlabels2.pack(side=tk.TOP)
 
 # frame for the buttons.
 frm_buttons = tk.Frame(master=frm_abstract)#, bg="yellow")
