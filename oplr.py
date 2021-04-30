@@ -306,24 +306,24 @@ frm_abstract.pack_propagate(0) #this is to avoid being resized by content
 
 # this is the title of the publications (default: "Instructions")
 font1 = font.Font(window, ('Arial', 12, 'bold'))
-lbl_title = tk.Message(master=frm_abstract, text="Instructions", width=800, font=font1, bg="#DDDDDD")
+lbl_title = tk.Message(master=frm_abstract, text="Instructions", width=750, font=font1, bg="#DDDDDD")
 lbl_title.pack(side=tk.TOP, fill = tk.BOTH)
 
 # this is the list of authors and the year of the publications
 font2 = font.Font(window, ('Arial', 10, 'italic'))
-lbl_subtitle = tk.Message(master=frm_abstract, text="", width=800, font=font2, bg="#DDDDDD")
+lbl_subtitle = tk.Message(master=frm_abstract, text="", width=750, font=font2, bg="#DDDDDD")
 lbl_subtitle.pack(side=tk.TOP, fill = tk.BOTH)
 
 # this is the text of the abstract (default: explanations about the software)
-lbl_abstract = tk.Message(master=frm_abstract, text="Click 'Open Pickle' to open the dictionary created by the labtree_construct script. You can then add new labels or existing ones dynamically for each publications. Your work is saved WHEN YOU ADD A LABEL. So if you click 'next pub' by mistake, just close the program and start it again. Written by Clara Lehenaff for research purpose, feel free to modify whatever needed. Any question ? clara.lehenaff@cri-paris.org", width=800, bg="#DDDDDD")
+lbl_abstract = tk.Message(master=frm_abstract, text="Click 'Open Pickle' to open the dictionary created by the labtree_construct script. You can then add new labels or existing ones dynamically for each publications. Your work is saved WHEN YOU ADD A LABEL. So if you click 'next pub' by mistake, just close the program and start it again. Written by Clara Lehenaff for research purpose, feel free to modify whatever needed. Any question ? clara.lehenaff@cri-paris.org", width=750, bg="#DDDDDD")
 lbl_abstract.pack(side=tk.TOP, fill = tk.BOTH)
 
 # this is the link to the publication (thus the abstract)
-lbl_link = tk.Message(master=frm_abstract, text="", width=800, bg="#DDDDDD", fg='blue')
+lbl_link = tk.Message(master=frm_abstract, text="", width=750, bg="#DDDDDD", fg='blue')
 lbl_link.pack(side=tk.TOP, fill = tk.BOTH)
 
 # this is the frame in which we put the labels associated with the publication
-frm_currentlabels = tk.Frame(master=frm_abstract, width=800, bg="#DDDDDD")
+frm_currentlabels = tk.Frame(master=frm_abstract, width=750, bg="#DDDDDD")
 frm_currentlabels.pack(side=tk.TOP, fill = tk.BOTH)
 # this is a frame in the frame for beauty purpose
 frm_currentlabels2 = tk.Frame(master=frm_currentlabels, bg="#DDDDDD")
