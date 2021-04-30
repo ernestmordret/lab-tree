@@ -132,6 +132,7 @@ def nextpub():
                 else:
                     subtitle = subtitle + ", " + a
             subtitle = subtitle + " (" + mydict["pubs"][pub]['bib']['pub_year'] + ")"
+            subtitle = subtitle + " [" + str(mydict["pubs"][pub]['num_citations']) + "]"
             lbl_subtitle["text"] = subtitle
             lbl_link["text"] = mydict["pubs"][pub]['pub_url']
             # we bind a new callback for the url link of the pub
@@ -209,6 +210,8 @@ def repairpickle():
             mydict["pubs"][pub]['bib']['abstract'] = "<NO ABSTRACT>"
         if "pub_url" not in mydict["pubs"][pub]:
             mydict["pubs"][pub]['pub_url'] = "<NO URL>"
+        if "num_citations" not in mydict["pubs"][pub]:
+            mydict["pubs"][pub]['num_citations'] = "??"
             
     savepickle()
     
