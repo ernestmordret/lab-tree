@@ -109,6 +109,7 @@ def delbuttonpress():
         window_popup.update()
         mydict["pubs"].pop(currentpub, None)
         mydict["labels"].pop(currentpub, None)
+        ordering()
         nextpub()
         
     x = window.winfo_x()
