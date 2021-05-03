@@ -161,7 +161,7 @@ def changepub(n):
     global currentpub
     global currentpos
     
-    if n > len(orderedpubs):
+    if n >= len(orderedpubs):
         return
     if n < 0:
         return
@@ -247,6 +247,9 @@ def repairpickle():
     
     if "labels" not in mydict:
         mydict = {"pubs":mydict,"labels":{"list":{}}}
+        
+    if "list" not in mydict["labels"]:
+        mydict["labels"]["list"] = {}
         
     for pub in mydict['pubs']:
         # if no labels exist for this pub, we create the pub in labels
