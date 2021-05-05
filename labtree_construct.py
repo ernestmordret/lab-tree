@@ -6,9 +6,9 @@ import sys
 ###############################################
 # THESE ARE ALL THE VALUES YOU NEED TO CHANGE #
 ###############################################
-file_to_open = "oxman2.pickle" # this is the file you want to modify
-file_to_save = "oxman2.pickle" # the name you want to save. Can be the same as file_to_open
-myauthor = "N Oxman" # the exact name of your author (google scholar format : Initial-space-lastname)
+file_to_open = "fussenegger.pickle" # this is the file you want to modify
+file_to_save = "fussenegger2.pickle" # the name you want to save. Can be the same as file_to_open
+myauthor = "M Fussenegger" # the exact name of your author (google scholar format : Initial-space-lastname)
 removepapers = True # True/False if you want to remove the papers where your author is not first or last
 displayall = False # True/False if you want to print all the authors list and the publications with no abstract
 ###############################################
@@ -55,7 +55,7 @@ if removepapers:
         if selected[pub]['bib']['author'][0] != myauthor and selected[pub]['bib']['author'][-1] != myauthor:
             selected.pop(pub,None)
             m-=1
-    toprint = toprint+"\n"+"Author was first or last in "+str(n)+" papers out of "+str(m)+", removed the others."
+    toprint = toprint+"\n"+"Author was first or last in "+str(m)+" papers out of "+str(n)+", removed the others."
             
 # we display the list of authors to check if it's right
 if displayall:
