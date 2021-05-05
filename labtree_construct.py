@@ -1,6 +1,7 @@
 import pickle
 from scholarly import scholarly
 from tqdm import tqdm
+import sys 
 
 ###############################################
 # THESE ARE ALL THE VALUES YOU NEED TO CHANGE #
@@ -11,6 +12,16 @@ myauthor = "N Oxman" # the exact name of your author (google scholar format : In
 removepapers = True # True/False if you want to remove the papers where your author is not first or last
 displayall = False # True/False if you want to print all the authors list and the publications with no abstract
 ###############################################
+
+if len(sys.argv) != 6:
+    print("labtree_construct runs using the script arguments...") 
+else:
+    print("labtree_construct runs from command line...") 
+    file_to_open = argv[1]
+    file_to_save = argv[2]
+    myauthor = argv[3]
+    removepapers = argv[4]
+    displayall = argv[5]
 
 # we open the file created by labtree_generate [CHANGE FILE NAME]
 with open(file_to_open, 'rb') as f:
