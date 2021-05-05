@@ -3,7 +3,7 @@ from scholarly import scholarly
 from tqdm import tqdm
 
 # we open the file created by labtree_generate [CHANGE FILE NAME]
-with open('oxman.pickle', 'rb') as f:
+with open('oxman2.pickle', 'rb') as f:
     # The protocol version used is detected automatically, so we do not
     # have to specify it.
     mydict = pickle.load(f)
@@ -23,6 +23,18 @@ for pub in masterdict["pubs"]:
         n+=1
         selected[n] = masterdict["pubs"][pub]
 
+# remove papers where your author is not the first or the last author
+# change removepapers to True if you want to use this function
+# change myauthor by the name of your author
+removepapers = False
+myauthor = "N Oxman"
+if removepapers:
+    for pub in list(selected):
+        print(selected[pub]['bib']['author'])
+        if selected[pub]['bib']['author'][0] != myauthor and selected[pub]['bib']['author'][-1] != myauthor:
+            selected.pop(pub,None)
+            print("removed an entry")
+            
 # we display the list of authors to check if it's right
 for pub in selected:
     print(selected[pub]['bib']['author'])
@@ -53,7 +65,5 @@ print(n)
 # then when we're done, we update masterdict with the new pubs
 masterdict["pubs"] = selected
 
-print(masterdict)
-
-with open('oxman.pickle', 'wb') as f:
+with open('oxman2.pickle', 'wb') as f:
     pickle.dump(masterdict, f, pickle.HIGHEST_PROTOCOL)
