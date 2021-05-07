@@ -287,10 +287,7 @@ def newlabel():
         toadd = ent_newlabel.get()
         if toadd not in mydict["labels"]["list"]:
             mydict["labels"]["list"][toadd]=0
-            newbutton = tk.Button(master=frm_labels,
-                             text=toadd,
-                             command=lambda toadd=toadd: addlabel(toadd))
-            newbutton.pack(side=tk.TOP)
+            definelabels()
         addlabel(toadd)
     else:
         print("Open a pickle first !")
@@ -298,11 +295,33 @@ def newlabel():
 # this function creates all the "labels" buttons for the first time when the pub is opened    
 def definelabels():
     if "labels" in mydict:
+        for child in frm_labels2.winfo_children():
+            child.destroy()
+            
+        # in our frame frm_labels2 we put a canvas that will scroll
+        cnv_labels = tk.Canvas(master=frm_labels2,width=200,height=600)
+        cnv_labels.pack(side=tk.TOP)
+        # in our frame frm_labels2 we also put a scrollbar to command the scrolling
+        vbar=Scrollbar(frm_labels2,orient=VERTICAL)
+        vbar.pack(side=RIGHT,fill=Y)
+        vbar.config(command=cnv_labels.yview) # the scrollbar commands the canvas cnv_labels
+        cnv_labels.config(width=200,height=600)
+        cnv_labels.config(yscrollcommand=vbar.set) # the scrolling is commanded by vbar           
+        cnv_labels.pack(side=LEFT,expand=True,fill=BOTH)
+        # in our canvas we put a frame that will host the buttons (40 px per button)
+        # and a bit more (100) just to be sure, though it's not necessary
+        size = 100+len(mydict["labels"]["list"])*40
+        frm_incanvas = tk.Frame(cnv_labels, width=200,height=size)
+        cnv_labels.create_window((1,1), window=frm_incanvas, anchor='nw')
+        # then we put all our buttons in the frame that is in the canvas
+        y=5
         for label in mydict["labels"]["list"]:
-            newbutton = tk.Button(master=frm_labels,
+            newbutton = tk.Button(master=frm_incanvas,
                                  text=label,
                                  command=lambda label=label: addlabel(label))
-            newbutton.pack(side=tk.TOP, padx=3, pady=3)
+            newbutton.place(x=5, y=y)
+            y+=40
+        cnv_labels.config(scrollregion=(0,0,y,y)) 
 
 # this function exports the pickled dictionary as a CSV
 def csvexport():
@@ -453,7 +472,7 @@ frm_buttons = tk.Frame(master=frm_abstract)#, bg="yellow")
 frm_buttons.pack(side=tk.TOP)
 
 # this is the LABELS frame including all labels that can be added
-frm_labels = tk.Frame(master=window, width=200,height=800)#, bg="blue")
+frm_labels = tk.Frame(master=window, width=200,height=600)
 frm_labels.pack(fill=tk.BOTH, side=tk.LEFT, padx=20, pady=20, expand=True)
 
 # this is the "new label" text, entry box, and button to validate
@@ -469,6 +488,10 @@ btn_newlabel.pack(side=tk.TOP, fill = tk.BOTH)
 # this is a separator
 lbl_separat = tk.Label(master=frm_labels,text="---")
 lbl_separat.pack(side=tk.TOP, fill = tk.BOTH, padx=10, pady=10)
+
+# a frame for the canvas
+frm_labels2 = tk.Frame(master=frm_labels, width=200,height=600)
+frm_labels2.pack(side=tk.TOP)
 
 # title of the software
 window.title("Open Paper Labelling for Research (OPLR 1.1)")
