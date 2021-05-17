@@ -177,7 +177,7 @@ def changepub(n):
             subtitle = a
         else:
             subtitle = subtitle + ", " + a
-    subtitle = subtitle + " (" + mydict["pubs"][pub]['bib']['pub_year'] + ")"
+    subtitle = subtitle + " (" + str(mydict["pubs"][pub]['bib']['pub_year']) + ")"
     subtitle = subtitle + " [" + str(mydict["pubs"][pub]['num_citations']) + "]"
     lbl_subtitle["text"] = subtitle
     lbl_link["text"] = mydict["pubs"][pub]['pub_url']
