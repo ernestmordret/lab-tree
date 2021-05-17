@@ -6,9 +6,9 @@ import sys
 ###############################################
 # THESE ARE ALL THE VALUES YOU NEED TO CHANGE #
 ###############################################
-file_to_open = "fussenegger.pickle" # this is the file you want to modify
-file_to_save = "fussenegger2.pickle" # the name you want to save. Can be the same as file_to_open
-myauthor = "M Fussenegger" # the exact name of your author (google scholar format : Initial-space-lastname)
+file_to_open = "mahadevan.pickle" # this is the file you want to modify
+file_to_save = "mahadevan_final.pickle" # the name you want to save. Can be the same as file_to_open
+myauthor = "L Mahadevan" # the exact name of your author (google scholar format : Initial-space-lastname)
 removepapers = True # True/False if you want to remove the papers where your author is not first or last
 displayall = False # True/False if you want to print all the authors list and the publications with no abstract
 ###############################################
@@ -35,12 +35,23 @@ if "labels" not in mydict:
     masterdict = {"pubs":mydict,"labels":{}}
 else:
     masterdict = mydict
- 
+
+# we reformat the author field if it's not in the right format
+for pub in masterdict["pubs"]:
+    authorlist = masterdict["pubs"][pub]['bib']['author']
+    if isinstance(authorlist, str): #it's supposed to be a list not a string
+        authorlist = authorlist.split(" and ")
+        masterdict["pubs"][pub]['bib']['author'] = authorlist
+
 selected={}
 n=0
 toprint = ""
-# we only keep the publications where the author is the one we want [CHANGE AUTHOR NAME]
+# we only keep the publications where the author is the one we want 
 for pub in masterdict["pubs"]:
+    authorlist = masterdict["pubs"][pub]['bib']['author']
+    if " and " in authorlist and isinstance(authorlist, str):
+        authorlist = authorlist.split(" and ")
+        masterdict["pubs"][pub]['bib']['author'] = authorlist
     if myauthor in masterdict["pubs"][pub]['bib']['author']:
         n+=1
         selected[n] = masterdict["pubs"][pub]
@@ -64,26 +75,6 @@ if displayall:
         if "abstract" not in selected[pub]['bib']:
             print(selected[pub]['bib'])
 
-
-################### THIS SECTION RARELY WORK
-################### because google scholar doesn't want
-################### so it's commented
-
-# # we fill the abstracts. This might require multiple tries so we only fill 10 at a time.
-# # repeat the script as many time as necessary. 
-# stop = 0
-# m = 0
-# for pub in tqdm(selected):
-#     if selected[pub]['filled'] == True:
-#         m+=1
-#     if stop < 10 and selected[pub]['filled'] == False:
-#         stop+=1
-#         scholarly.fill(selected[pub])
-#         selected[pub]['filled'] = True
-#         m+=1
-# print("Filling complete ! "+str(m)+"/"+str(n)+" papers filled.")
-
-#############################
 
 # then when we're done, we update masterdict with the new pubs
 masterdict["pubs"] = selected
