@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import collections
 import csv
 import random
@@ -41,7 +41,7 @@ with open(filecsv, newline='',encoding='utf-8') as csvfile:
     #we now have all our periods in tree, we can now begin to fill tree
     maxpapers = 0
     maxlinks = 0
-    for period in tqdm(tree):
+    for period in tree:
         for i in range(5,len(header)):
             tree[period][header[i]] = 0 #we set the number of paper per label to 0
             for j in range(5,len(header)):
@@ -69,7 +69,7 @@ with open(filecsv, newline='',encoding='utf-8') as csvfile:
     positions = {}
     previous = 0
     first = True
-    for period in tqdm(tree):
+    for period in tree:
         # the first time, we have nothing to build on so we start from 0
         if first:
             positions[period] = [] #we will use a simple list to save the positions using the list flexibility
@@ -123,8 +123,6 @@ with open(filecsv, newline='',encoding='utf-8') as csvfile:
                         links.pop(bigger, None)
             # there is no link, so we just copy the remaining labels one by one
             else:
-                print(labels)
-                print(period)
                 for label in list(labels):
                     if label not in positions[period] and labels[label]>0:
                         positions[period].append(label)
@@ -239,13 +237,17 @@ with open(filecsv, newline='',encoding='utf-8') as csvfile:
     numlabels = len(header)-5
     imgheight = numlabels*50
     
-    im = Image.new('RGB', (imgwidth, imgheight), (256, 256, 256))
+    im = Image.new('RGB', (imgwidth, imgheight+50), (256, 256, 256))
     draw = ImageDraw.Draw(im)
 
     #let's first draw the periods
-    for i in range(len(tree)):
+    i=0
+    for period in tree:
         draw.line(((i+1)*100, 0, (i+1)*100, imgheight), fill=(210, 210, 210), width=1)
-    
+        font = ImageFont.truetype("arial.ttf", 20)
+        draw.text((i*100+25,imgheight+15), str(period), fill=(210, 210, 210),anchor="ms",font=font)
+        i+=1
+                  
     #let's define (random) colors for the labels
     #colors will be between 100 (dark) and 250 (light)
     colors = {}
@@ -255,6 +257,23 @@ with open(filecsv, newline='',encoding='utf-8') as csvfile:
         col2 = 100+int(random.random()*150)
         col3 = 100+int(random.random()*150)
         colors[header[i]]=(col1,col2,col3)    
+
+    # let's set the link to -2 if it's 0, and -1 if it ends up being not 0 after that
+    for period in tree:
+        for i in range(len(positions[period])):
+            # if it's 0 it's now -2
+            if tree[period][positions[period][i]] == 0:
+                tree[period][positions[period][i]] = -2
+            # if it's more than 0 then all previous -2 are -1
+            if tree[period][positions[period][i]] > 0:
+                for period2 in tree:
+                    if period2 == period:
+                        break
+                    for j in range(len(positions[period2])):
+                        if tree[period2][positions[period2][j]] == -2 and positions[period][i]==positions[period2][j]:
+                            tree[period2][positions[period2][j]] = -1
+
+
     # we have the positions, let's draw them
     x=0
     first=True
@@ -262,19 +281,55 @@ with open(filecsv, newline='',encoding='utf-8') as csvfile:
         margin = 50*(math.floor((len(header)-len(positions[period]))/2)-2) # half the empty squares, floored
         if not first:
             for i in range(len(positions[period])):
-                if positions[period][i] in positions[previous] and tree[period][positions[period][i]]>0:
+                if positions[period][i] in positions[previous] and tree[period][positions[period][i]] > -2:
                     index = positions[previous].index(positions[period][i])
                     draw.line((x+50, margin+i*50+25, x-50,previousmargin+index*50+25), fill=colors[positions[period][i]], width=1)
         for i in range(len(positions[period])):
+            value = tree[period][positions[period][i]]
+            if value < 0:
+                value = 0
+            if i > 0 and value > 0:
+                # we draw links
+                value2 = tree[period][positions[period][i-1]]
+                if value2 > 0:
+                    #both values are positive, so we can draw a link !
+                    #we look for the link
+                    linkA = positions[period][i-1]+"+"+positions[period][i]
+                    linkB = positions[period][i]+"+"+positions[period][i-1]
+                    if linkA in tree[period]:
+                        linksize = tree[period][linkA]
+                    elif linkB in tree[period]:
+                        linksize = tree[period][linkB]
+                    else:
+                        linksize = 0
+                    if linksize > 0:
+                        finalsize = math.floor(50*linksize/maxpapers)
+                        draw.line((x+50, margin+i*50+25, x+50, margin+(i-1)*50+25), fill=(170, 170, 170), width=finalsize) 
+        for i in range(len(positions[period])):
             #we draw positions[period][i] which is a label
-            size=75*tree[period][positions[period][i]]/maxpapers #this will give something between 0 and 75
+            value = tree[period][positions[period][i]]
+            if value < 0:
+                value = 0
+            size=50*value/maxpapers #this will give something between 0 and 75
             half = (50-size)/2
-            draw.chord((x+25+half, margin+i*50+half, x+25+half+size, margin+i*50+half+size), start=0, end=360, fill=colors[positions[period][i]], outline=(0, 0, 0))
+            draw.chord((x+25+half, margin+i*50+half, x+25+half+size, margin+i*50+half+size), start=0, end=360, fill=colors[positions[period][i]], outline=(0, 0, 0))   
+
+        #we add the text to the beginning of each line
+        if first:
+            for i in range(len(positions[period])):
+                font = ImageFont.truetype("arial.ttf", 10)
+                draw.text((x+3,margin+i*50+30), str(positions[period][i]), fill=colors[positions[period][i]],anchor="mm",font=font)            
+        else:
+            for i in range(len(positions[period])):
+                if positions[period][i] not in positions[previous]:
+                    font = ImageFont.truetype("arial.ttf", 10)
+                    draw.text((x+3,margin+i*50+30), str(positions[period][i]), fill=colors[positions[period][i]], anchor="mm",font=font)
                 
         first=False
         previous=period
         previousmargin=margin
         x+=100 #next period will be drawn 100 pixels further
+        
     im.save(imgoutput, quality=95)
 
 
