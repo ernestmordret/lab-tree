@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, dcc, html, dash_table
 import pandas as pd
+from scholarly import scholarly
             
  
 app = dash.Dash(external_stylesheets=['https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css'],
@@ -249,15 +250,18 @@ def render_page_content(pathname):
                 ),
                 dbc.Row(
                     dbc.Col(html.Div([input_load,submit_button_load]), width=6),
-                    justify="center"
+                    justify="center",
+                    align="center",
                 ),
                 dbc.Row(
                     dbc.Col(html.Div([loading,output_load]), width=6, align="center"),
-                    justify="center"
+                    justify="center",
+                    align="center",
                 ),
                 dbc.Row(
                     dbc.Col(html.Div([pub_store, data_store, interval_checker, progress]), width=6, align="center"),
-                    justify="center"
+                    justify="center",
+                    align="center",
                 ),
             ],
         )
@@ -316,6 +320,7 @@ def render_page_content(pathname):
               prevent_initial_call=True
              )
 def fetch_author(n_clicks, name):
+
     search_query = scholarly.search_author(name)
     first_author_result = next(search_query)
     author = scholarly.fill(first_author_result)
