@@ -3,6 +3,8 @@ import dash_labs as dl
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, dcc, html, dash_table, callback
 import pandas as pd
+import io
+import base64
 
 app = dash.Dash(
     __name__,
@@ -66,21 +68,23 @@ app.layout = dbc.Container(
 
 @callback(
     Output('store-data', 'data'),
-    Input('submit-button-load', 'n_clicks'),
+    Input('fetch-author-button', 'n_clicks'),
     Input('reviewed-button', 'n_clicks'),
+    Input('load-demo-button', 'n_clicks'),
     State('store-others', 'data'),
     State('store-data', 'data'),
     Input('middleman', 'data'),
+    Input('upload-excel', 'contents'),
     prevent_initial_call=True
 
 )
-def update_data(n_click_load,  n_clicks_reviewed,  other_data,  data,
-                middleman_data):
+def update_data(n_click_load,  n_clicks_reviewed, n_clicks_demo,  other_data,  data,
+                middleman_data, uploaded_excel):
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    if trigger_id == 'submit-button-load':
-        if n_click_load > 0:
+    if trigger_id == 'load-demo-button':
+        if n_clicks_demo > 0:
             df = pd.read_csv('datasets/Naama.tsv', sep='\t')
             df['reviewed'] = False
             df.sort_values('pub_year', ascending=True, inplace=True)
@@ -99,6 +103,14 @@ def update_data(n_click_load,  n_clicks_reviewed,  other_data,  data,
                     data[i]['abstract'] = other_data['abstract']
                     data[i]['reviewed'] = True
         return data
+
+    if trigger_id == 'upload-excel':
+        content = uploaded_excel[0]
+        _, content_string = content.split(',')
+        decoded = base64.b64decode(content_string)
+        df = pd.read_excel(io.BytesIO(decoded))
+        records = df.to_dict('records')
+        return records
 
     if trigger_id == 'middleman':
         return middleman_data

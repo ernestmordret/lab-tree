@@ -51,3 +51,4 @@ wheels/
 *.egg
 .DS_Store
 .DS_Store
+/abstract_embeddings

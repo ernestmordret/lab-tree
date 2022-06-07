@@ -20,26 +20,78 @@ fetch_author_button = html.Button(id='fetch-author-button',
                                  )
 
 reviewed_button = html.Button(id='reviewed-button',
-            n_clicks=0,
-            hidden=True
-            )
+                              n_clicks=0,
+                              hidden=True
+                              )
 
-load_from_excel_button = html.Button(id='load-from-excel-button',
-            n_clicks=0
-            )
+upload_from_excel = dcc.Upload(
+                            id='upload-excel',
+                            children=html.Div([
+                                'Drag and Drop or ',
+                                html.A('Select Files')
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'lineHeight': '60px',
+                                'borderWidth': '1px',
+                                'borderStyle': 'dashed',
+                                'borderRadius': '5px',
+                                'textAlign': 'center',
+                                'margin': '10px'
+                            },
+                            # Allow multiple files to be uploaded
+                            multiple=True
+                        )
+
+load_demo_button = html.Button(id='load-demo-button',
+                                 n_clicks=0,
+                                 children="Load the demo dataset",
+                                 className="btn btn-primary",
+                                 style={'margin': '1rem'}
+                                 )
 
 
-layout = dbc.Col([
-    dbc.Row(
-        dbc.Col(html.Div(children="Type the name of your favorite researcher"), width=6),
-        justify="center"
-    ),
-    dbc.Row(
-        dbc.Col(html.Div([input_load, fetch_author_button, reviewed_button]), width=6),
-        justify="center",
-        align="center",
-    ),
-],
+
+layout = dbc.Col(
+    [
+
+        dbc.Row(
+            dbc.Col(html.H3(children="Type the name of your favorite researcher"), width=6),
+            justify="center"
+        ),
+
+        dbc.Row(
+            dbc.Col(html.Div([input_load, fetch_author_button, reviewed_button]), width=6),
+            justify="center",
+            align="center",
+        ),
+
+        html.Hr(),
+
+        dbc.Row(
+            dbc.Col(html.H3(children="Load a previous export"), width=6),
+            justify="center"
+        ),
+
+        dbc.Row(
+            dbc.Col(html.Div([upload_from_excel]), width=6),
+            justify="center"
+        ),
+
+        html.Hr(),
+
+        dbc.Row(
+            dbc.Col(html.H3(children="Load demo – Naama Barkai"), width=6),
+            justify="center"
+        ),
+
+        dbc.Row(
+            dbc.Col(load_demo_button, width=6),
+            justify="center"
+        )
+
+    ],
     style=CONTENT_STYLE
 )
 
