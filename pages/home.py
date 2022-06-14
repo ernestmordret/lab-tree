@@ -10,7 +10,7 @@ CONTENT_STYLE = {
     "padding": "2rem 1rem",
 }
 
-input_load = dcc.Input(id='input-name-load', type='text')
+input_load = dcc.Input(id='input-name-load', type='text', placeholder="")
 
 fetch_author_button = html.Button(id='fetch-author-button',
                                  n_clicks=0,
@@ -51,6 +51,9 @@ load_demo_button = html.Button(id='load-demo-button',
                                  style={'margin': '1rem'}
                                  )
 
+update_context_button = html.Button(id='update-context',
+                                    n_clicks=0,
+                                    hidden=True),
 
 
 layout = dbc.Col(
@@ -88,8 +91,10 @@ layout = dbc.Col(
 
         dbc.Row(
             dbc.Col(load_demo_button, width=6),
-            justify="center"
-        )
+            justify="center",
+            align="center",
+        ),
+
 
     ],
     style=CONTENT_STYLE

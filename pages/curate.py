@@ -156,12 +156,16 @@ review_panel = html.Div(
                     style={'margin': '1rem'}
                     ),
         html.Button(id='fetch-author-button',
-            n_clicks=0,
-            hidden=True
-            ),
+                    n_clicks=0,
+                    hidden=True
+                    ),
         html.Button(id='load-demo-button',
                     n_clicks=0,
                     hidden=True
+                    ),
+        html.Button(id='input-name-load',
+                     n_clicks=0,
+                     hidden=True
                     ),
         dcc.Upload(id='upload-excel')
 
@@ -184,8 +188,7 @@ layout = dbc.Col([
 )
 def populate_datatable(data, n_clicks, n_clicks2):
     df = pd.DataFrame.from_records(data)
-    authors_options = list(set.union(*[set(eval(i)) for i in df['authors']]))
-    print(f'populating data-table: {df.head(3)}')
+    authors_options = list(set(sum([i.split('|') for i in df.authors.values],[])))
     return df.to_dict('records'), authors_options
 
 
@@ -215,7 +218,7 @@ def update_authors_list(data, selected_rows):
     if selected_rows:
         i = selected_rows[0]
         if data:
-            authors_list = eval(data[i]['authors'])
+            authors_list = data[i]['authors'].split('|')
             return authors_list
     return []
 
@@ -262,7 +265,6 @@ def update_others(selected_rows, new_abstract, other_data):
     new_data = other_data.copy()
     new_data['selected_rows'] = selected_rows
     new_data['abstract'] = new_abstract
-    print(f'updating other: {new_data}')
     return new_data
 
 # update middleman
@@ -274,10 +276,8 @@ def update_others(selected_rows, new_abstract, other_data):
 )
 def update_middleman_upon_row_delete(ts, data, data_previous):
     if ts:
-        print(ts, data)
         if data_previous:
             if len(data) == len(data_previous) - 1:
-                print('here we go')
                 return data
     return dash.no_update
 

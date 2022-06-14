@@ -1,36 +1,50 @@
-from scholarly import scholarly
+from scholarly import scholarly, ProxyGenerator
+from tqdm import tqdm
+import pandas as pd
+import unidecode
 
+def fix_author(s):
+    last_name = unidecode.unidecode(s.split()[-1].capitalize())
+    first_name = s[0].capitalize()
+    return first_name+' '+last_name
 
-# LOAD CALLBACKS
-@app.callback(Output('loading-1', 'children'),
-              Output('data-store', 'data'),
-              Input('submit-button-load', 'n_clicks'),
-              State('input-name-load', 'value'),
+def format_pub(pub):
+    bib = pub['bib']
+    title = bib.get('title', '')
+    pub_year = bib.get('pub_year', '')
+    authors = '|'.join([fix_author(i) for i in bib['author'].split(' and ')])
+    journal = bib.get('journal', '')
+    abstract = bib.get('abstract', '')
+    url = pub.get('pub_url', '')
+    num_citations = pub.get('num_citations', '')
 
-              prevent_initial_call=True
-              )
-def fetch_author(n_clicks, name):
+    return {'title': title,
+            "pub_year": pub_year,
+            'authors': authors,
+            'journal': journal,
+            'abstract': abstract,
+            'url': url,
+            'num_citations': num_citations,
+            'reviewed': False
+            }
+
+def fetch_author(name):
+    #pg = ProxyGenerator()
+    #success = pg.FreeProxies()
+    #print(success)
+    #scholarly.use_proxy(pg)
+
+    print('First pass author started')
     search_query = scholarly.search_author(name)
     first_author_result = next(search_query)
     author = scholarly.fill(first_author_result)
+    print('First pass author complete')
     author['pub_index'] = 0
-    return f"Started fetching author and publications", {'author': author}
-
-
-@app.callback(Output("progress-load", "value"),
-              Output('filled-pub-store', 'data'),
-              Input('data-store', 'data'),
-              Input('filled-pub-store', 'data'),
-              prevent_initial_call=True
-              )
-def load_pub(data, filled_pub_list):
-    author = data['author']
     publications = author['publications']
-    n_filled = len(filled_pub_list)
-    L = len(publications)
-    if n_filled != L:
-        pub = publications[n_filled]
-        filled_pub = scholarly.fill(pub)
-        new_list = filled_pub_list.copy() + [filled_pub]
-        return 100 * (n_filled + 1) / L, new_list
-    return dash.no_update, dash.no_update
+    for pub in publications:
+        print(pub['bib']['title'])
+        scholarly.fill(pub)
+    df = pd.DataFrame.from_records([format_pub(pub) for pub in publications if 'journal' in pub.get('bib', {})])
+    return df.to_dict('records')
+
+
